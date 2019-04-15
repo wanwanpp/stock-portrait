@@ -1,11 +1,11 @@
 package com.wp.service;
 
-import org.apache.commons.lang.time.StopWatch;
+import com.wp.util.CellInfo;
+import com.wp.util.CellUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.client.coprocessor.AggregationClient;
-import org.apache.hadoop.hbase.client.coprocessor.LongColumnInterpreter;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.filter.SubstringComparator;
@@ -16,18 +16,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class HbaseServiceImpl {
     private static Admin admin = null;
     private static Connection conn = null;
 
+    private static String MASTER_HOST = "172.23.253.80";
+
     {
         // 创建hbase配置对象
         Configuration conf = HBaseConfiguration.create();
-        conf.set("hbase.rootdir", "hdfs://192.168.80.134:9000/hbase");
+        conf.set("hbase.rootdir", "hdfs://" + MASTER_HOST + "/hbase");
         //使用eclipse时必须添加这个，否则无法定位
-        conf.set("hbase.zookeeper.quorum", "192.168.80.134");
+        conf.set("hbase.zookeeper.quorum", MASTER_HOST);
         conf.set("hbase.client.scanner.timeout.period", "600000");
         conf.set("hbase.rpc.timeout", "600000");
         try {
@@ -37,7 +42,6 @@ public class HbaseServiceImpl {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public String getdata(String tablename, String rowkey, String famliyname, String colum) throws Exception {
@@ -188,7 +192,7 @@ public class HbaseServiceImpl {
      * @param column       列名
      * @return
      */
-    public static String selectValue(String tablename, String rowKey, String columnFamily, String column) throws IOException {
+    public String getValue(String tablename, String rowKey, String columnFamily, String column) throws IOException {
         TableName name = TableName.valueOf(tablename);
         Table table = conn.getTable(name);
         Get g = new Get(rowKey.getBytes());
@@ -196,6 +200,32 @@ public class HbaseServiceImpl {
         Result rs = table.get(g);
         return Bytes.toString(rs.value());
     }
+
+
+    public List<CellInfo> getCellInfoListOfCf(String tableName, String rowKey, String cf) {
+        List<CellInfo> cellInfoList = new ArrayList<>();
+        TableName name = TableName.valueOf(tableName);
+        try {
+            Table table = conn.getTable(name);
+            Get get = new Get(rowKey.getBytes());
+            get.addFamily(Bytes.toBytes(cf));
+            Result result = table.get(get);
+
+            List<Cell> cells = result.listCells();
+            cellInfoList = cells.stream().map(new Function<Cell, CellInfo>() {
+                @Override
+                public CellInfo apply(Cell cell) {
+                    return CellUtils.getCellInfo(cell);
+                }
+            }).collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("execute method getColumnsOfCf failed, tableName is {}, rowKey is {}, cf is {}", tableName, rowKey, cf);
+            e.printStackTrace();
+        }
+
+        return cellInfoList;
+    }
+
 
     /**
      * 查询表中所有行（Scan方式）
@@ -249,7 +279,6 @@ public class HbaseServiceImpl {
         ResultScanner scanner = table.getScanner(scan);
         try {
             for (Result result : scanner) {
-                //TODO 此处根据业务来自定义实现
 //                list.add(result.getValue());
             }
         } finally {
@@ -282,7 +311,6 @@ public class HbaseServiceImpl {
         ResultScanner scanner = table.getScanner(scan);
         try {
             for (Result result : scanner) {
-                //TODO 此处根据业务来自定义实现
                 list.add(null);
             }
         } finally {

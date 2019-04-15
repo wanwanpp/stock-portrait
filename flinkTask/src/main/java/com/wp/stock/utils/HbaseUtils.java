@@ -75,6 +75,7 @@ public class HbaseUtils {
      *
      */
     public static String getdata(String tablename, String rowkey, String famliyname, String colum) throws Exception {
+
         Table table = conn.getTable(TableName.valueOf(tablename));
         // 将字符串转换成byte[]
         byte[] rowkeybyte = Bytes.toBytes(rowkey);

@@ -71,7 +71,7 @@ public class AvePriceOfFiveDaysTask {
         List<DailyTrading> results = reduceResult.collect();
         String tablename = "dailyTradeInfo";
         String rowkey = currentDate;
-        String famliyname = "aveInfo";
+        String famliyname = "aveOfFiveDay";
         HashMap<String, String> colunm2Data = new HashMap<>(4000);
         for (DailyTrading trading : results) {
             colunm2Data.put(trading.getCode(), String.valueOf(trading.getAvePriceOfFiveDays()));
