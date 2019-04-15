@@ -39,6 +39,7 @@ public class DailyTrading {
         this.price = price;
     }
 
+
     @Override
     public String toString() {
         return "DailyTrading{" +
