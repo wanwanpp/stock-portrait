@@ -13,6 +13,7 @@
         <module>searchService</module>
         <module>viewService</module>
         <module>flinkTask</module>
+        <module>common</module>
     </modules>
 
     <parent>

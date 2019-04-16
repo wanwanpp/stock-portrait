@@ -1,4 +1,4 @@
-package com.wp.util;
+package com.wp.search.entity;
 
 public class CellInfo{
 

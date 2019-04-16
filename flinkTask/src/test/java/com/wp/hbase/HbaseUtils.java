@@ -10,9 +10,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by li on 2019/1/5.
- */
 public class HbaseUtils {
     private static Admin admin = null;
     private static Connection conn = null;

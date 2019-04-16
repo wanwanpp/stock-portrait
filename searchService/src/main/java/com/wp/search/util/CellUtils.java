@@ -1,5 +1,6 @@
-package com.wp.util;
+package com.wp.search.util;
 
+import com.wp.search.entity.CellInfo;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.util.Bytes;

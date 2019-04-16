@@ -1,7 +1,8 @@
-package com.wp.service;
+package com.wp.search.repository.impl;
 
-import com.wp.util.CellInfo;
-import com.wp.util.CellUtils;
+import com.wp.search.entity.CellInfo;
+import com.wp.search.repository.HbaseRepository;
+import com.wp.search.util.CellUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
@@ -10,8 +11,10 @@ import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.filter.SubstringComparator;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,29 +22,51 @@ import java.util.NavigableMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Service
+
+@Repository
 @Slf4j
-public class HbaseServiceImpl {
-    private static Admin admin = null;
-    private static Connection conn = null;
+public class HbaseRepositoryImpl implements HbaseRepository {
 
-    private static String MASTER_HOST = "172.23.253.80";
+    private Admin admin = null;
+    private Connection conn = null;
 
-    {
-        // 创建hbase配置对象
+    @Value("${hbase.host}")
+    public String masterHost;
+
+    @PostConstruct
+    public void init(){
         Configuration conf = HBaseConfiguration.create();
-        conf.set("hbase.rootdir", "hdfs://" + MASTER_HOST + "/hbase");
-        //使用eclipse时必须添加这个，否则无法定位
-        conf.set("hbase.zookeeper.quorum", MASTER_HOST);
+        conf.set("hbase.rootdir", "hdfs://" + masterHost + "/hbase");
+        conf.set("hbase.zookeeper.quorum", masterHost);
         conf.set("hbase.client.scanner.timeout.period", "600000");
         conf.set("hbase.rpc.timeout", "600000");
         try {
             conn = ConnectionFactory.createConnection(conf);
-            // 得到管理程序
             admin = conn.getAdmin();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public List<CellInfo> getCellInfoListOfCf(String tableName, String rowKey, String cf) {
+
+        List<CellInfo> cellInfoList = new ArrayList<>();
+        TableName name = TableName.valueOf(tableName);
+        try {
+            Table table = conn.getTable(name);
+            Get get = new Get(rowKey.getBytes());
+            get.addFamily(Bytes.toBytes(cf));
+            Result result = table.get(get);
+
+            List<Cell> cells = result.listCells();
+            cellInfoList = cells.stream().map(cell -> CellUtils.getCellInfo(cell)).collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("execute method getColumnsOfCf failed, tableName is {}, rowKey is {}, cf is {}", tableName, rowKey, cf);
+            e.printStackTrace();
+        }
+
+        return cellInfoList;
     }
 
     public String getdata(String tablename, String rowkey, String famliyname, String colum) throws Exception {
@@ -165,7 +190,7 @@ public class HbaseServiceImpl {
      * @param tablename 表名
      * @param rowKey    行名
      */
-    public static String selectRow(String tablename, String rowKey) throws IOException {
+    public String selectRow(String tablename, String rowKey) throws IOException {
         String record = "";
         TableName name = TableName.valueOf(tablename);
         Table table = conn.getTable(name);
@@ -200,32 +225,6 @@ public class HbaseServiceImpl {
         Result rs = table.get(g);
         return Bytes.toString(rs.value());
     }
-
-
-    public List<CellInfo> getCellInfoListOfCf(String tableName, String rowKey, String cf) {
-        List<CellInfo> cellInfoList = new ArrayList<>();
-        TableName name = TableName.valueOf(tableName);
-        try {
-            Table table = conn.getTable(name);
-            Get get = new Get(rowKey.getBytes());
-            get.addFamily(Bytes.toBytes(cf));
-            Result result = table.get(get);
-
-            List<Cell> cells = result.listCells();
-            cellInfoList = cells.stream().map(new Function<Cell, CellInfo>() {
-                @Override
-                public CellInfo apply(Cell cell) {
-                    return CellUtils.getCellInfo(cell);
-                }
-            }).collect(Collectors.toList());
-        } catch (IOException e) {
-            log.error("execute method getColumnsOfCf failed, tableName is {}, rowKey is {}, cf is {}", tableName, rowKey, cf);
-            e.printStackTrace();
-        }
-
-        return cellInfoList;
-    }
-
 
     /**
      * 查询表中所有行（Scan方式）
@@ -335,5 +334,4 @@ public class HbaseServiceImpl {
             admin.deleteTable(name);
         }
     }
-
 }

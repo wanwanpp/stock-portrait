@@ -71,12 +71,12 @@ public class AvePriceOfFiveDaysTask {
         List<DailyTrading> results = reduceResult.collect();
         String tablename = "dailyTradeInfo";
         String rowkey = currentDate;
-        String famliyname = "aveOfFiveDay";
+        String familyname = "aveOfFiveDay";
         HashMap<String, String> colunm2Data = new HashMap<>(4000);
         for (DailyTrading trading : results) {
             colunm2Data.put(trading.getCode(), String.valueOf(trading.getAvePriceOfFiveDays()));
         }
-        HbaseUtils.putdataWithMuchColumns(tablename, rowkey, famliyname, colunm2Data);
+        HbaseUtils.putdataWithMuchColumns(tablename, rowkey, familyname, colunm2Data);
     }
 
     private static ArrayList<String> getRecentFiveDays(String currentDate) throws SQLException {
