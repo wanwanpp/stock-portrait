@@ -49,6 +49,14 @@
             <artifactId>flink-streaming-scala_2.11</artifactId>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-yarn -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-yarn_2.11</artifactId>
+            <version>1.7.2</version>
+        </dependency>
+
+
         <!--mysql连接-->
         <dependency>
             <groupId>mysql</groupId>
