@@ -13,6 +13,6 @@ eureka:
 hbase:
   host: 172.23.253.80
   table:
-    name: test
+    name: dailyTradeInfo
   columnfamily:
-    fiveAve: info
+    fiveAve: aveOfFiveDay

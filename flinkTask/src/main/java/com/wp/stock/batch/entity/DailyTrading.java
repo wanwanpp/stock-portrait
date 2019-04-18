@@ -6,6 +6,15 @@ public class DailyTrading {
     private Float price;
     private String tradeDate;
     private Float avePriceOfFiveDays;
+    private Float deviationPrice;
+
+    public Float getDeviationPrice() {
+        return deviationPrice;
+    }
+
+    public void setDeviationPrice(Float deviationPrice) {
+        this.deviationPrice = deviationPrice;
+    }
 
     public String getTradeDate() {
         return tradeDate;
@@ -47,6 +56,7 @@ public class DailyTrading {
                 ", price=" + price +
                 ", tradeDate='" + tradeDate + '\'' +
                 ", avePriceOfFiveDays=" + avePriceOfFiveDays +
+                ", deviationPrice=" + deviationPrice +
                 '}';
     }
 }

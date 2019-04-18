@@ -104,7 +104,7 @@ public class FlinkApp {
             }
         })
                 .groupBy("code")
-                .reduceGroup(new DailyTradingReduce());
+                .reduceGroup(new DailyTradingReduce(currentDate));
 
 //        String finalCurrentDate = currentDate;
 //        DataSet<DailyTrading> reduceResult = dailyTrading.filter((FilterFunction<DailyTrading>) value -> {

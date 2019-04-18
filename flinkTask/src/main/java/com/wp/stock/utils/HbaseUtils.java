@@ -1,5 +1,6 @@
 package com.wp.stock.utils;
 
+import com.wp.stock.batch.entity.DailyTrading;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
