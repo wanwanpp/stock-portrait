@@ -1,6 +1,6 @@
 package com.wp.search.repository.impl;
 
-import com.wp.search.entity.CellInfo;
+import com.wp.common.dto.CellDto;
 import com.wp.search.repository.HbaseRepository;
 import com.wp.search.util.CellUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -34,7 +33,7 @@ public class HbaseRepositoryImpl implements HbaseRepository {
     public String masterHost;
 
     @PostConstruct
-    public void init(){
+    public void init() {
         Configuration conf = HBaseConfiguration.create();
         conf.set("hbase.rootdir", "hdfs://" + masterHost + "/hbase");
         conf.set("hbase.zookeeper.quorum", masterHost);
@@ -49,9 +48,9 @@ public class HbaseRepositoryImpl implements HbaseRepository {
     }
 
     @Override
-    public List<CellInfo> getCellInfoListOfCf(String tableName, String rowKey, String cf) {
+    public List<CellDto> getCellDtoListOfCf(String tableName, String rowKey, String cf) {
 
-        List<CellInfo> cellInfoList = new ArrayList<>();
+        List<CellDto> cellInfoList = new ArrayList<>();
         TableName name = TableName.valueOf(tableName);
         try {
             Table table = conn.getTable(name);
@@ -60,7 +59,7 @@ public class HbaseRepositoryImpl implements HbaseRepository {
             Result result = table.get(get);
 
             List<Cell> cells = result.listCells();
-            cellInfoList = cells.stream().map(cell -> CellUtils.getCellInfo(cell)).collect(Collectors.toList());
+            cellInfoList = cells.stream().map(cell -> CellUtils.getCellDto(cell)).collect(Collectors.toList());
         } catch (IOException e) {
             log.error("execute method getColumnsOfCf failed, tableName is {}, rowKey is {}, cf is {}", tableName, rowKey, cf);
             e.printStackTrace();
@@ -69,18 +68,30 @@ public class HbaseRepositoryImpl implements HbaseRepository {
         return cellInfoList;
     }
 
-    public String getdata(String tablename, String rowkey, String famliyname, String colum) throws Exception {
-        Table table = conn.getTable(TableName.valueOf(tablename));
-        // 将字符串转换成byte[]
-        byte[] rowkeybyte = Bytes.toBytes(rowkey);
-        Get get = new Get(rowkeybyte);
-        Result result = table.get(get);
-        byte[] resultbytes = result.getValue(famliyname.getBytes(), colum.getBytes());
-        if (resultbytes == null) {
-            return null;
+    /**
+     * 查找单行单列族单列记录
+     *
+     * @param tableName
+     * @param rowKey
+     * @param cf
+     * @param column
+     * @return
+     */
+    public CellDto getValue(String tableName, String rowKey, String cf, String column) {
+        TableName name = TableName.valueOf(tableName);
+        CellDto cellDto = new CellDto();
+        try {
+            Table table = conn.getTable(name);
+            Get g = new Get(rowKey.getBytes());
+            g.addColumn(Bytes.toBytes(cf), Bytes.toBytes(column));
+            Result rs = table.get(g);
+            Cell cell = rs.rawCells()[0];
+            cellDto = CellUtils.getCellDto(cell);
+        } catch (IOException e) {
+            log.error("execute method getValue failed, tableName is {}, rowKey is {}, cf is {}, column is {}", tableName, rowKey, cf, column);
+            e.printStackTrace();
         }
-
-        return new String(resultbytes);
+        return cellDto;
     }
 
     /**
@@ -206,24 +217,6 @@ public class HbaseRepositoryImpl implements HbaseRepository {
             record += str;
         }
         return record;
-    }
-
-    /**
-     * 查找单行单列族单列记录
-     *
-     * @param tablename    表名
-     * @param rowKey       行名
-     * @param columnFamily 列族名
-     * @param column       列名
-     * @return
-     */
-    public String getValue(String tablename, String rowKey, String columnFamily, String column) throws IOException {
-        TableName name = TableName.valueOf(tablename);
-        Table table = conn.getTable(name);
-        Get g = new Get(rowKey.getBytes());
-        g.addColumn(Bytes.toBytes(columnFamily), Bytes.toBytes(column));
-        Result rs = table.get(g);
-        return Bytes.toString(rs.value());
     }
 
     /**

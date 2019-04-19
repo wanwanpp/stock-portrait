@@ -3,6 +3,9 @@ package com.wp.common.vo;
 
 import com.wp.common.enums.ResultEnum;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ResultVO<T> {
 
     private Integer code;
@@ -11,12 +14,22 @@ public class ResultVO<T> {
 
     private T data;
 
-    public static ResultVO success(Object object) {
+    private HashMap<String, Object> map = new HashMap<>();
+
+    public static <T> ResultVO<T> success(T t) {
         ResultVO resultVO = new ResultVO();
-        resultVO.setCode(0);
-        resultVO.setMsg("成功");
-        resultVO.setData(object);
+        resultVO.setCode(ResultEnum.SUCCEED.getCode());
+        resultVO.setMsg(ResultEnum.SUCCEED.getMessage());
+        resultVO.setData(t);
         return resultVO;
+    }
+
+    public static boolean isSuccess(ResultVO resultVO) {
+        if (resultVO.getCode().equals(ResultEnum.SUCCEED.getCode()) &&
+                resultVO.getMsg().equals(ResultEnum.SUCCEED.getMessage())) {
+            return true;
+        }
+        return false;
     }
 
     public static ResultVO error(ResultEnum resultEnum) {
@@ -26,6 +39,17 @@ public class ResultVO<T> {
         return resultVO;
     }
 
+    public void add(String key, Object value) {
+        this.map.put(key, value);
+    }
+
+    public HashMap<String, Object> getMap() {
+        return map;
+    }
+
+    public void setMap(HashMap<String, Object> map) {
+        this.map = map;
+    }
 
     public Integer getCode() {
         return code;

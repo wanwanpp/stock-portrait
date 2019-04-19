@@ -1,15 +1,14 @@
 package com.wp.search.rpc;
 
+import com.wp.common.dto.CellDto;
 import com.wp.common.enums.ResultEnum;
 import com.wp.common.vo.ResultVO;
-import com.wp.search.entity.CellInfo;
-import com.wp.search.service.HbaseServiceImpl;
+import com.wp.search.service.HbaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -20,26 +19,29 @@ import java.util.List;
 public class HbaseDataRpc {
 
     @Autowired
-    private HbaseServiceImpl hbaseService;
+    private HbaseService hbaseService;
 
-    /**
-     * 根据日期获取当日的五日均价
-     *
-     * @param date 日期，格式为 yyyyMMdd
-     * @return
-     */
-    @RequestMapping(value = "aveOfFiveDay", method = RequestMethod.GET)
-    public ResultVO aveOfFiveDay(String date) {
+    @RequestMapping(value = "getColumnsOfCf", method = RequestMethod.GET)
+    public ResultVO<List<CellDto>> getColumnsOfCf(String rowkey, String cf) {
 
-        log.info("date is {}", date);
-
-        if (StringUtils.isEmpty(date)) {
-            log.error("execute aveOfFiveDay failed, because {}", ResultEnum.PARAM_ERROR.getMessage());
+        if (StringUtils.isEmpty(rowkey) || StringUtils.isEmpty(cf)) {
+            log.error("execute getColumnsOfCf failed, because {}", ResultEnum.PARAM_ERROR.getMessage());
             return ResultVO.error(ResultEnum.PARAM_ERROR);
         }
 
-        // 根据获取五日均价数据 （tableName,familyColumn,rowKey）-> colemns
-        List<CellInfo> cellInfoList = hbaseService.getCellInfoListOfCf(date);
+        List<CellDto> cellInfoList = hbaseService.getColumnsOfCf(rowkey, cf);
         return ResultVO.success(cellInfoList);
+    }
+
+    @RequestMapping(value = "getColumn", method = RequestMethod.GET)
+    public ResultVO<CellDto> getColumn(String rowkey, String cf, String column) {
+
+        if (StringUtils.isEmpty(rowkey) || StringUtils.isEmpty(cf)) {
+            log.error("execute getColumn failed, because {}", ResultEnum.PARAM_ERROR.getMessage());
+            return ResultVO.error(ResultEnum.PARAM_ERROR);
+        }
+
+        CellDto cellDto = hbaseService.getColumn(rowkey, cf, column);
+        return ResultVO.success(cellDto);
     }
 }

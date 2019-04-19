@@ -2,6 +2,7 @@ package com.wp.common.enums;
 
 public enum ResultEnum {
 
+    SUCCEED(0, "成功"),
     PARAM_ERROR(1, "请求参数错误"),
     LOGIN_FAIL(2, "登录失败"),
     ROLE_ERROR(3, "角色权限有误"),;

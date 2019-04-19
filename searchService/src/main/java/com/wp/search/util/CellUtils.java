@@ -1,14 +1,14 @@
 package com.wp.search.util;
 
-import com.wp.search.entity.CellInfo;
+import com.wp.common.dto.CellDto;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.util.Bytes;
 
 public class CellUtils {
 
-    public static CellInfo getCellInfo(Cell cell){
-        CellInfo cellInfo = new CellInfo();
+    public static CellDto getCellDto(Cell cell){
+        CellDto cellInfo = new CellDto();
         cellInfo.setRow(getRow(cell));
         cellInfo.setCf(getFamily(cell));
         cellInfo.setQualifier(getQualifier(cell));

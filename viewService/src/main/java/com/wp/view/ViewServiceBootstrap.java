@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = "com.wp.view.service")
+@EnableFeignClients(basePackages = "com.wp.view.client")
 public class ViewServiceBootstrap {
     public static void main(String[] args) {
 

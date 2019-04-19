@@ -1,6 +1,6 @@
 package com.wp.search.repository;
 
-import com.wp.search.entity.CellInfo;
+import com.wp.common.dto.CellDto;
 
 import java.util.List;
 
@@ -13,5 +13,5 @@ public interface HbaseRepository {
      * @param cf  column family
      * @return
      */
-    List<CellInfo> getCellInfoListOfCf(String tableName,String rowKey,String cf);
+    List<CellDto> getCellDtoListOfCf(String tableName, String rowKey, String cf);
 }

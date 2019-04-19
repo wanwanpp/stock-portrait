@@ -4,9 +4,12 @@ import java.sql.*;
 
 public class JDBCUtils {
 
-    private static final String DB_URL = "jdbc:mysql://localhost/stock_portrait";
+//    private static final String DB_URL = "jdbc:mysql://localhost/stock_portrait";
+//    private static final String USER = "root";
+//    private static final String PASS = "wp980325";
+    private static final String DB_URL = "jdbc:mysql://master/stock_portrait";
     private static final String USER = "root";
-    private static final String PASS = "wp980325";
+    private static final String PASS = "Hadoopc102*";
 
     private static Connection conn = null;
 

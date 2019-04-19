@@ -1,16 +1,16 @@
-package com.wp.search.entity;
+package com.wp.common.dto;
 
-public class CellInfo{
+public class CellDto {
 
     public String row;
     public String cf;
     public String qualifier;
     public String value;
 
-    public CellInfo() {
+    public CellDto() {
     }
 
-    public CellInfo(String row, String cf, String qualifier, String value) {
+    public CellDto(String row, String cf, String qualifier, String value) {
         this.row = row;
         this.cf = cf;
         this.qualifier = qualifier;
